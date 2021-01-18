@@ -1,0 +1,6 @@
+framework module IndoorPositioning {
+  umbrella header "IndoorPositioning.h"
+
+  export *
+  module * { export * }
+}

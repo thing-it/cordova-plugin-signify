@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="cordova-plugin-signify" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>Cordova Plugin Signify</name>
+    <description>Signify</description>
+    <keywords>cordova</keywords>
+    <repo>https://github.com/thing-it/cordova-plugin-signify.git</repo>
+
+    <dependency id="cordova-plugin-device" version="*" />
+
+    <js-module name="underscorejs" src="www/lib/underscore-min-1.6.js">
+        <runs/>
+    </js-module>
+
+    <js-module name="Q" src="www/lib/q.min.js">
+        <runs/>
+    </js-module>
+
+
+    <js-module src="www/PositioningManager.js" name="PositioningManager">
+        <clobbers target="cordova.plugins.signify.PositioningManager"/>
+    </js-module>
+
+    <js-module name="Delegate" src="www/Delegate.js">
+        <clobbers target="Delegate"/>
+    </js-module>
+
+    <!-- Android -->
+    <platform name="android">
+
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="PositioningManager">
+                <param name="android-package" value="com.thingit.integration.signify.PositioningManager"/>
+            </feature>
+        </config-file>
+
+        <lib-file src="Android-signifySDK-2.42.0/jars/indoorpositioning.aar" arch="device"/>
+
+        <source-file src="src/android/PositioningManager.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/ErrorEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/HeadingEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/LocationEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/ISignifyCommand.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/ISignifyEventNotifier.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+
+    </platform>
+
+    <!-- iOS -->
+    <platform name="ios">
+
+        <config-file target="config.xml" parent="/*">
+            <preference name="deployment-target" value="12.0"/>
+            <feature name="PositioningManager">
+                <param name="ios-package" value="CDVSignifyPositioningManager"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/ios/CDVSignifyPositioningManager.swift"/>
+
+        <framework src="iOS-signifySDK-2.42.0/IndoorPositioning.framework" custom="true" embed="true"/>
+
+    </platform>
+
+</plugin>
