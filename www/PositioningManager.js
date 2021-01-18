@@ -20,11 +20,11 @@ function PositioningManager () {
 }
 
 
-MyPortManager.prototype.getDelegate = function() {
+PositioningManager.prototype.getDelegate = function() {
     return this.delegate;
 };
 
-MyPortManager.prototype.setDelegate = function(newDelegate) {
+PositioningManager.prototype.setDelegate = function(newDelegate) {
 
     if (!(newDelegate instanceof Delegate)) {
         console.error('newDelegate parameter has to be an instance of Delegate.');
@@ -48,7 +48,7 @@ MyPortManager.prototype.setDelegate = function(newDelegate) {
  *
  * @returns {Q.Promise}
  */
-MyPortManager.prototype._registerDelegateCallbackId = function () {
+PositioningManager.prototype._registerDelegateCallbackId = function () {
 
     var d = Q.defer();
 
@@ -70,7 +70,7 @@ MyPortManager.prototype._registerDelegateCallbackId = function () {
  *
  * @returns {undefined}
  */
-MyPortManager.prototype._onDelegateCallback = function (deferred, pluginResult) {
+PositioningManager.prototype._onDelegateCallback = function (deferred, pluginResult) {
 
     if (_.isString(pluginResult) && pluginResult !== 'OK') {
         pluginResult = JSON.parse(pluginResult);
@@ -95,7 +95,7 @@ MyPortManager.prototype._onDelegateCallback = function (deferred, pluginResult) 
  *
  * @returns {undefined}
  */
-MyPortManager.prototype._mapDelegateCallback = function (pluginResult) {
+PositioningManager.prototype._mapDelegateCallback = function (pluginResult) {
 
     var eventType = pluginResult['eventType']; // the Objective-C selector's name
 
@@ -123,7 +123,7 @@ MyPortManager.prototype._mapDelegateCallback = function (pluginResult) {
  *
  * @returns {undefined}
  */
-MyPortManager.prototype._preProcessorExecutor = function (resolve, pluginResult, preProcessors) {
+PositioningManager.prototype._preProcessorExecutor = function (resolve, pluginResult, preProcessors) {
     _.each(preProcessors, function (preProcessor) {
         pluginResult = preProcessor(pluginResult);
     });
@@ -146,7 +146,7 @@ MyPortManager.prototype._preProcessorExecutor = function (resolve, pluginResult,
  *
  * @returns {Q.Promise}
  */
-MyPortManager.prototype._promisedExec = function (method, commandArgs, preProcessors) {
+PositioningManager.prototype._promisedExec = function (method, commandArgs, preProcessors) {
     var self = this;
     commandArgs = _.isArray(commandArgs) ? commandArgs : [];
     preProcessors = _.isArray(preProcessors) ? preProcessors : [];
@@ -167,15 +167,15 @@ MyPortManager.prototype._promisedExec = function (method, commandArgs, preProces
 };
 
 
-MyPortManager.prototype.configure = function(license, testMode) {
+PositioningManager.prototype.configure = function(license, testMode) {
     return this._promisedExec('configure', [license, testMode], []);
 };
 
-MyPortManager.prototype.start = function() {
+PositioningManager.prototype.start = function() {
     return this._promisedExec('start', [], []);
 };
 
-MyPortManager.prototype.stop = function() {
+PositioningManager.prototype.stop = function() {
     return this._promisedExec('stop', [], []);
 };
 

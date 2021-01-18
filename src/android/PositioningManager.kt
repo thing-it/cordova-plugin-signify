@@ -1,6 +1,7 @@
 package com.thingit.integration.signify
 
 import android.os.AsyncTask
+import android.os.Handler
 import android.util.Log
 import com.philips.indoorpositioning.library.IndoorPositioning
 import com.philips.indoorpositioning.library.IndoorPositioning.IndoorPositioningHeadingOrientation
@@ -15,7 +16,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
 
-class MyPortManager : CordovaPlugin() {
+class PositioningManager : CordovaPlugin() {
 
   protected val TAG = "PositioningManager"
 
@@ -33,19 +34,21 @@ class MyPortManager : CordovaPlugin() {
   override fun execute(action: String, data: JSONArray, callbackContext: CallbackContext): Boolean {
 
       if ("configure".equals(action)) {
-        configure(data.getString(0), data.getBoolean(1), callbackContext)
+        this.configure(data.getString(0), data.getBoolean(1), callbackContext)
       } else if ("start".equals(action)) {
-        start(callbackContext)
+        this.start(callbackContext)
       } else if ("stop".equals(action)) {
-        stop(callbackContext)
+        this.stop(callbackContext)
+      } else if ("registerDelegateCallbackId".equals(action)) {
+        this.registerDelegateCallbackId(data.optJSONObject(0), callbackContext)
       } else {
-          return false
+        return false
       }
 
       return true
   }
 
-  private fun initialize(license: String, testMode: Boolean, callbackContext: CallbackContext) {
+  private fun configure(license: String, testMode: Boolean, callbackContext: CallbackContext) {
 
     _handleCallSafely(callbackContext, object : ISignifyCommand {
 
@@ -58,6 +61,9 @@ class MyPortManager : CordovaPlugin() {
           if (testMode == true) IndoorPositioningMode.SIMULATION else IndoorPositioningMode.DEFAULT
         )
 
+        return PluginResult(PluginResult.Status.OK);
+      }
+
     }, true)
 
   }
@@ -69,10 +75,11 @@ class MyPortManager : CordovaPlugin() {
       override fun run(): PluginResult {
         indoorPositioning.register(indoorPositioningListener, handler)
         indoorPositioning.start()
+        return PluginResult(PluginResult.Status.OK);
       }
 
     }, true)
-   
+
   }
 
   private fun stop(callbackContext: CallbackContext) {
@@ -82,6 +89,7 @@ class MyPortManager : CordovaPlugin() {
       override fun run(): PluginResult {
         indoorPositioning.unregister()
         indoorPositioning.stop()
+        return PluginResult(PluginResult.Status.OK);
       }
 
     }, true)
@@ -89,7 +97,7 @@ class MyPortManager : CordovaPlugin() {
   }
 
   private val indoorPositioningListener: IndoorPositioning.Listener = object : IndoorPositioning.Listener {
-        
+
     override fun didUpdateHeading(heading: Map<String, Any>) {
       if (::signifyEventNotifier.isInitialized) {
         signifyEventNotifier.didReceiveHeading(HeadingEvent(heading))
@@ -104,11 +112,11 @@ class MyPortManager : CordovaPlugin() {
 
     override fun didFailWithError(error: IndoorPositioning.Listener.Error) {
       if (::signifyEventNotifier.isInitialized) {
-        signifyEventNotifier.didReceiveError(LogEvent(error.toString))
+        signifyEventNotifier.didReceiveError(ErrorEvent(error.toString()))
       }
     }
 
-  }     
+  }
 
   private fun registerDelegateCallbackId(arguments: JSONObject?, callbackContext: CallbackContext) {
 
@@ -200,7 +208,7 @@ class MyPortManager : CordovaPlugin() {
       }
   }
 
-  private fun _handleCallSafely(callbackContext: CallbackContext, task: IMyPortCommand) {
+  private fun _handleCallSafely(callbackContext: CallbackContext, task: ISignifyCommand) {
       _handleCallSafely(callbackContext, task, true)
   }
 

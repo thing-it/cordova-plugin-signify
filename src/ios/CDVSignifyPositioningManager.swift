@@ -2,7 +2,7 @@ import IndoorPositioning;
 
 import os.log;
 
-class ErrorEvent {
+struct ErrorEvent: Codable {
 
     let errorMessage:String;
     let timestamp:Date;
@@ -43,8 +43,8 @@ class ErrorEvent {
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "errorMessage" : errorMessage,
-            "timestamp" : timestamp
+            "errorMessage" : self.errorMessage,
+            "timestamp" : self.timestamp
         ]
     }
 
@@ -52,12 +52,12 @@ class ErrorEvent {
 
 struct LocationEvent: Codable {
 
-    let latitude:double;
-    let longitude:double;
-    let horizontalAccuracy:double;
-    let altitude:double;
-    let verticalAccuracy:double;
-    let floor:String:
+    let latitude:Double;
+    let longitude:Double;
+    let horizontalAccuracy:Double;
+    let altitude:Double;
+    let verticalAccuracy:Double;
+    let floor:String;
     let accuracyLevel:Int32;
     let expectedAccuracyLevel:String;
 
@@ -65,105 +65,120 @@ struct LocationEvent: Codable {
         
         let location = location.mapValues { $0 as? NSNumber }.compactMapValues { $0 };
 
-        latitude = location[kIPLocationLatitude]?.doubleValue ?? 0;
-        longitude = location[kIPLocationLongitude]?.doubleValue ?? 0;
-        horizontalAccuracy = location[kIPLocationHorizontalAccuracy]?.doubleValue ?? 0;
-        altitude = location[kIPLocationAltitude]?.doubleValue ?? 0;
-        verticalAccuracy = location[kIPLocationVerticalAccuracy]?.doubleValue ?? 0;
-        floor = location[kIPLocationFloorLevel]?.stringValue ?? "Unknown";
-        accuracyLevel = location[kIPLocationExpectedAccuracyLevel]?.int32Value ?? 1;
+        self.latitude = location[kIPLocationLatitude]?.doubleValue ?? 0;
+        self.longitude = location[kIPLocationLongitude]?.doubleValue ?? 0;
+        self.horizontalAccuracy = location[kIPLocationHorizontalAccuracy]?.doubleValue ?? 0;
+        self.altitude = location[kIPLocationAltitude]?.doubleValue ?? 0;
+        self.verticalAccuracy = location[kIPLocationVerticalAccuracy]?.doubleValue ?? 0;
+        self.floor = location[kIPLocationFloorLevel]?.stringValue ?? "Unknown";
+        self.accuracyLevel = location[kIPLocationExpectedAccuracyLevel]?.int32Value ?? 1;
         
         let indicator = IPIndoorPositioningExpectedAccuracyIndicator(rawValue: accuracyLevel);
 
         switch indicator {
             case .unknown:
-                expectedAccuracyLevel = "Unknown"
+                self.expectedAccuracyLevel = "Unknown"
             case .low:
-                expectedAccuracyLevel = "Low"
+                self.expectedAccuracyLevel = "Low"
             case .medium:
-                expectedAccuracyLevel = "Medium"
+                self.expectedAccuracyLevel = "Medium"
             case .high:
-                expectedAccuracyLevel = "High"
+                self.expectedAccuracyLevel = "High"
             default:
-                expectedAccuracyLevel = "Unknown"
+                self.expectedAccuracyLevel = "Unknown"
         }
 
     }
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "latitude" : latitude,
-            "longitude" : longitude,
-            "horizontalAccuracy": horizontalAccuracy,
-            "altitude": altitude,
-            "altitudeAccuracy": altitudeAccuracy,
-            "floor": floor,
-            "accuracyLevel": accuracyLevel,
-            "expectedAccuracyLevel": expectedAccuracyLevel
+            "latitude" : self.latitude,
+            "longitude" : self.longitude,
+            "horizontalAccuracy": self.horizontalAccuracy,
+            "altitude": self.altitude,
+            "verticalAccuracy": self.verticalAccuracy,
+            "floor": self.floor,
+            "accuracyLevel": self.accuracyLevel,
+            "expectedAccuracyLevel": self.expectedAccuracyLevel
         ]
     }
 }
 
 struct HeadingEvent: Codable {
 
-    let headingDegrees:double;
-    let headingAccuracy:double;
-    let headingArbitraryNorthDegrees:double;
+    let headingDegrees:Double;
+    let headingAccuracy:Double;
+    let headingArbitraryNorthDegrees:Double;
    
     init (heading: [AnyHashable : Any]) {
         
         let heading = heading.mapValues { $0 as? NSNumber }.compactMapValues { $0 };
 
-        headingDegrees = heading[kIPHeadingDegrees]?.doubleValue ?? 0;
-        headingAccuracy = heading[kIPHeadingAccuracy]?.doubleValue ?? 0;
-        headingArbitraryNorthDegrees = heading[kIPHeadingArbitraryNorthDegrees]?.doubleValue ?? 0;
+        self.headingDegrees = heading[kIPHeadingDegrees]?.doubleValue ?? 0;
+        self.headingAccuracy = heading[kIPHeadingAccuracy]?.doubleValue ?? 0;
+        self.headingArbitraryNorthDegrees = heading[kIPHeadingArbitraryNorthDegrees]?.doubleValue ?? 0;
 
     }
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "headingDegrees" : headingDegrees,
-            "headingAccuracy" : headingAccuracy,
-            "headingArbitraryNorthDegrees": headingArbitraryNorthDegrees
+            "headingDegrees" : self.headingDegrees,
+            "headingAccuracy" : self.headingAccuracy,
+            "headingArbitraryNorthDegrees": self.headingArbitraryNorthDegrees
         ]
     }
 }
 
 struct ErrorCallbackEvent : Codable {
     
-    let eventType: String
-    let event: ErrorEvent
+    var eventType: String;
+    var event: ErrorEvent;
+    
+    init (errorEvent: ErrorEvent) {
+        self.event = errorEvent;
+        self.eventType = "didReceiveError";
+    }
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "eventType" : eventType,
-            "event" : event
+            "eventType" : self.eventType,
+            "event" : self.event
         ]
     }
 }
 
 struct LocationCallbackEvent : Codable {
 
-    let eventType: String
-    let event: LocationEvent
+    var eventType: String;
+    var event: LocationEvent;
+    
+    init (locationEvent: LocationEvent) {
+        self.event = locationEvent;
+        self.eventType = "didReceiveLocation";
+    }
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "eventType" : eventType,
-            "event" : event
+            "eventType" : self.eventType,
+            "event" : self.event
         ]
     }
 }
 
 struct HeadingCallbackEvent : Codable {
 
-    let eventType: String;
-    let event: HeadingEvent;
+    var eventType: String;
+    var event: HeadingEvent;
+    
+    init (headingEvent: HeadingEvent) {
+        self.event = headingEvent;
+        self.eventType = "didReceiveHeading";
+    }
 
     var dictionaryRepresentation: [String: Any] {
         return [
-            "eventType" : eventType,
-            "event" : event
+            "eventType" : self.eventType,
+            "event" : self.event
         ]
     }
 }
@@ -180,7 +195,7 @@ class SignifyEventNotifier {
 
     func didReceiveError(event: ErrorEvent) {
 
-        let callbackEvent = ErrorCallbackEvent(eventType: "didReceiveLog", event: event);
+        let callbackEvent = ErrorCallbackEvent(errorEvent: event);
 
         do {
 
@@ -201,7 +216,7 @@ class SignifyEventNotifier {
 
     func didReceiveLocation(event: LocationEvent) {
 
-        let callbackEvent = LocationCallbackEvent(eventType: "didReceiveLocation", event: event);
+        let callbackEvent = LocationCallbackEvent(locationEvent: event);
 
         do {
 
@@ -222,7 +237,7 @@ class SignifyEventNotifier {
 
     func didReceiveHeading(event: HeadingEvent) {
 
-        let callbackEvent = HeadingCallbackEvent(eventType: "didReceiveHeading", event: event);
+        let callbackEvent = HeadingCallbackEvent(headingEvent: event);
 
         do {
 
@@ -289,9 +304,10 @@ class SignifyEventNotifier {
      @objc(stop:) func stop(command : CDVInvokedUrlCommand) {
          DispatchQueue.main.async {
 
-             guard indoorPositioning.running else { 
+            guard self.indoorPositioning.running else {
                 let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
                 self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
+                return;
               }
              
              self.indoorPositioning.stop();
