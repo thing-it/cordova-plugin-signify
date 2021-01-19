@@ -259,43 +259,49 @@ class SignifyEventNotifier {
 }
 
 @objc(CDVSignifyPositioningManager) class CDVSignifyPositioningManager : CDVPlugin, IPIndoorPositioningDelegate {
-
-    private let indoorPositioning = IPIndoorPositioning.sharedInstance();
+    
+    private var indoorPositioning: IPIndoorPositioning? = nil;
 
     var signifyEventNotifier: SignifyEventNotifier? = nil;
    
     override func pluginInitialize() {
+        self.indoorPositioning = IPIndoorPositioning.sharedInstance();
+    }
+    
+    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didUpdateHeading heading: [AnyHashable : Any]) {
+        self.signifyEventNotifier?.didReceiveHeading(event: HeadingEvent(heading: heading));
+    }
+    
+    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didUpdateLocation location: [AnyHashable : Any]) {
+        self.signifyEventNotifier?.didReceiveLocation(event: LocationEvent(location: location));
+    }
+    
+    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didFailWithError error: Error) {
+        let error = error as NSError;
+        guard error.domain == IPIndoorPositioningErrorDomain else { return };
+        self.signifyEventNotifier?.didReceiveError(event: ErrorEvent(error: error));
     }
 
     @objc(configure:) func configure(command : CDVInvokedUrlCommand) {
 
-        do {
+        let license: String = (command.arguments[0] as? String)!;
+        let testMode: Bool = (command.arguments[1] as? Bool ?? false);
 
-            let license: String = (command.arguments[0] as? String)!;
-            let testMode: Bool = (command.arguments[1] as? Bool ?? false);
+        self.indoorPositioning?.delegate = self
+        self.indoorPositioning?.headingOrientation = .portrait
+        self.indoorPositioning?.configuration = license
+        self.indoorPositioning?.mode = testMode ? .simulation : .default
 
-            self.indoorPositioning.delegate = self
-            self.indoorPositioning.headingOrientation = .portrait
-            self.indoorPositioning.configuration = license
-            self.indoorPositioning.mode = testMode ? .simulation : .default
+        self.indoorPositioning?.start();
 
-            self.indoorPositioning.start();
-
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
-
-        } catch {
-
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR);
-            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
-
-        }
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
+        self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
 
     }
 
     @objc(start:) func start(command : CDVInvokedUrlCommand) {
         DispatchQueue.main.async {
-            self.indoorPositioning.start();
+            self.indoorPositioning?.start();
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
             self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
         }
@@ -303,14 +309,14 @@ class SignifyEventNotifier {
 
      @objc(stop:) func stop(command : CDVInvokedUrlCommand) {
          DispatchQueue.main.async {
-
-            guard self.indoorPositioning.running else {
-                let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
-                self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
-                return;
-              }
-             
-             self.indoorPositioning.stop();
+            
+            guard self.indoorPositioning?.running ?? false else {
+               let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
+               self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
+               return;
+            }
+            
+             self.indoorPositioning?.stop();
              let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
              self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
          }
@@ -327,18 +333,6 @@ class SignifyEventNotifier {
         self.signifyEventNotifier = SignifyEventNotifier(command: command, commandDelegate: self.commandDelegate);
     }
 
-    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didUpdateHeading heading: [AnyHashable : Any]) {
-        self.signifyEventNotifier?.didReceiveHeading(event: HeadingEvent(heading: heading));
-    }
     
-    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didUpdateLocation location: [AnyHashable : Any]) {
-        self.signifyEventNotifier?.didReceiveLocation(event: LocationEvent(location: location));
-    }
-    
-    func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didFailWithError error: Error) {
-        let error = error as NSError;
-        guard error.domain == IPIndoorPositioningErrorDomain else { return };
-        self.signifyEventNotifier?.didReceiveError(event: ErrorEvent(error: error));  
-    }
 
 }

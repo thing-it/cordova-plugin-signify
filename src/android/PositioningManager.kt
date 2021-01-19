@@ -61,6 +61,9 @@ class PositioningManager : CordovaPlugin() {
           if (testMode == true) IndoorPositioningMode.SIMULATION else IndoorPositioningMode.DEFAULT
         )
 
+        indoorPositioning.register(indoorPositioningListener, handler)
+        indoorPositioning.start()
+
         return PluginResult(PluginResult.Status.OK);
       }
 
