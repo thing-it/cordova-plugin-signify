@@ -301,7 +301,13 @@ class SignifyEventNotifier {
 
     @objc(start:) func start(command : CDVInvokedUrlCommand) {
         DispatchQueue.main.async {
-            self.indoorPositioning?.start();
+
+            var isRunning = self.indoorPositioning?.running ?? false;
+
+            if (isRunning == false) {
+                self.indoorPositioning?.start();
+            }
+
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
             self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
         }
@@ -310,10 +316,10 @@ class SignifyEventNotifier {
      @objc(stop:) func stop(command : CDVInvokedUrlCommand) {
          DispatchQueue.main.async {
             
-            guard self.indoorPositioning?.running ?? false else {
-               let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
-               self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
-               return;
+             var isRunning = self.indoorPositioning?.running ?? false;
+
+            if (isRunning == true) {
+                self.indoorPositioning?.start();
             }
             
              self.indoorPositioning?.stop();
