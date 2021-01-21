@@ -319,7 +319,7 @@ class SignifyEventNotifier {
              var isRunning = self.indoorPositioning?.running ?? false;
 
             if (isRunning == true) {
-                self.indoorPositioning?.start();
+                self.indoorPositioning?.stop();
             }
             
              self.indoorPositioning?.stop();

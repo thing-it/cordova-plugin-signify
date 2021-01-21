@@ -23,7 +23,7 @@ class LocationEvent(location: Map<String, Any>) {
         this.horizontalAccuracy = location[IndoorPositioning.Listener.LOCATION_HORIZONTAL_ACCURACY] as Float
         this.altitude = location[IndoorPositioning.Listener.LOCATION_ALTITUDE] as Double
         this.verticalAccuracy = location[IndoorPositioning.Listener.LOCATION_VERTICAL_ACCURACY] as Float
-        this.floor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? Int ? :0
+        this.floor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? Int ?: 0
         this.accuracyLevel = location[IndoorPositioning.Listener.LOCATION_EXPECTED_ACCURACY_LEVEL] as? Int ?: 0
 
         this.expectedAccuracyLevel = ExpectedAccuracyLevel.fromInteger(this.accuracyLevel).toString();

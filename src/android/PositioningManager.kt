@@ -76,7 +76,7 @@ class PositioningManager : CordovaPlugin() {
     _handleCallSafely(callbackContext, object : ISignifyCommand {
 
       override fun run(): PluginResult {
-         if (indoorPositioning.isRunning() == false) {
+         if (::indoorPositioning.isInitialized && indoorPositioning.isRunning() == false) {
           indoorPositioning.register(indoorPositioningListener, handler)
           indoorPositioning.start()
          }
@@ -92,10 +92,10 @@ class PositioningManager : CordovaPlugin() {
     _handleCallSafely(callbackContext, object : ISignifyCommand {
 
       override fun run(): PluginResult {
-        if (indoorPositioning.isRunning() == true) {
-          indoorPositioning.unregister()
+        if (::indoorPositioning.isInitialized && indoorPositioning.isRunning() == true) {
           indoorPositioning.stop()
         }
+        indoorPositioning.unregister()
         return PluginResult(PluginResult.Status.OK);
       }
 
