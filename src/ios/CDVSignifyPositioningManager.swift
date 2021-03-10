@@ -265,7 +265,6 @@ class SignifyEventNotifier {
     var signifyEventNotifier: SignifyEventNotifier? = nil;
    
     override func pluginInitialize() {
-        self.indoorPositioning = IPIndoorPositioning.sharedInstance();
     }
     
     func indoorPositioning(_ indoorPositioning: IPIndoorPositioning, didUpdateHeading heading: [AnyHashable : Any]) {
@@ -283,16 +282,16 @@ class SignifyEventNotifier {
     }
 
     @objc(configure:) func configure(command : CDVInvokedUrlCommand) {
-
-        let license: String = (command.arguments[0] as? String)!;
+        
+        let license : String = (command.arguments[0] as? String)!;
         let testMode: Bool = (command.arguments[1] as? Bool ?? false);
+       
+        IPIndoorPositioning.sharedInstance().delegate = self
+        IPIndoorPositioning.sharedInstance().headingOrientation = .portrait
+        IPIndoorPositioning.sharedInstance().configuration = license
+        IPIndoorPositioning.sharedInstance().mode = testMode ? .simulation : .default
 
-        self.indoorPositioning?.delegate = self
-        self.indoorPositioning?.headingOrientation = .portrait
-        self.indoorPositioning?.configuration = license
-        self.indoorPositioning?.mode = testMode ? .simulation : .default
-
-        self.indoorPositioning?.start();
+        IPIndoorPositioning.sharedInstance().start();
 
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
         self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
@@ -301,13 +300,9 @@ class SignifyEventNotifier {
 
     @objc(start:) func start(command : CDVInvokedUrlCommand) {
         DispatchQueue.main.async {
-
-            var isRunning = self.indoorPositioning?.running ?? false;
-
-            if (isRunning == false) {
-                self.indoorPositioning?.start();
+            if (IPIndoorPositioning.sharedInstance().running == false) {
+                IPIndoorPositioning.sharedInstance().start();
             }
-
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
             self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
         }
@@ -315,16 +310,11 @@ class SignifyEventNotifier {
 
      @objc(stop:) func stop(command : CDVInvokedUrlCommand) {
          DispatchQueue.main.async {
-            
-             var isRunning = self.indoorPositioning?.running ?? false;
-
-            if (isRunning == true) {
-                self.indoorPositioning?.stop();
+            if (IPIndoorPositioning.sharedInstance().running == true) {
+                IPIndoorPositioning.sharedInstance().stop();
             }
-            
-             self.indoorPositioning?.stop();
-             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
-             self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId);
          }
      }
 
@@ -338,7 +328,5 @@ class SignifyEventNotifier {
     func createNotifierCallbacks(command : CDVInvokedUrlCommand) {
         self.signifyEventNotifier = SignifyEventNotifier(command: command, commandDelegate: self.commandDelegate);
     }
-
-    
 
 }
