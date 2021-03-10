@@ -28,8 +28,6 @@ class PositioningManager : CordovaPlugin() {
 
   lateinit var signifyEventNotifier: ISignifyEventNotifier
 
-  lateinit var indoorPositioning: IndoorPositioning
-
   @Throws(JSONException::class)
   override fun execute(action: String, data: JSONArray, callbackContext: CallbackContext): Boolean {
 
@@ -54,7 +52,7 @@ class PositioningManager : CordovaPlugin() {
 
       override fun run(): PluginResult {
 
-        indoorPositioning = IndoorPositioning(cordova.activity.application)
+        var indoorPositioning: IndoorPositioning = IndoorPositioning.getInstance(cordova.activity.application)
         indoorPositioning.setHeadingOrientation(IndoorPositioningHeadingOrientation.PORTRAIT)
         indoorPositioning.setConfiguration(license)
         indoorPositioning.setMode(
@@ -76,9 +74,9 @@ class PositioningManager : CordovaPlugin() {
     _handleCallSafely(callbackContext, object : ISignifyCommand {
 
       override fun run(): PluginResult {
-         if (::indoorPositioning.isInitialized && indoorPositioning.isRunning() == false) {
-          indoorPositioning.register(indoorPositioningListener, handler)
-          indoorPositioning.start()
+         if (IndoorPositioning.getInstance(cordova.activity.application).isRunning() == false) {
+           IndoorPositioning.getInstance(cordova.activity.application).register(indoorPositioningListener, handler)
+           IndoorPositioning.getInstance(cordova.activity.application).start()
          }
         return PluginResult(PluginResult.Status.OK);
       }
@@ -92,10 +90,10 @@ class PositioningManager : CordovaPlugin() {
     _handleCallSafely(callbackContext, object : ISignifyCommand {
 
       override fun run(): PluginResult {
-        if (::indoorPositioning.isInitialized && indoorPositioning.isRunning() == true) {
-          indoorPositioning.stop()
+        if (IndoorPositioning.getInstance(cordova.activity.application).isRunning() == true) {
+          IndoorPositioning.getInstance(cordova.activity.application).stop()
+          IndoorPositioning.getInstance(cordova.activity.application).unregister()
         }
-        indoorPositioning.unregister()
         return PluginResult(PluginResult.Status.OK);
       }
 
