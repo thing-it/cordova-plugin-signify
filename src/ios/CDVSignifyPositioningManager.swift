@@ -2,6 +2,25 @@ import IndoorPositioning;
 
 import os.log;
 
+class SignifyLogEvent: Codable {
+
+    var message:String;
+    var timestamp:Date;
+
+    init(message:String) {
+        self.message = "\(message)";
+        self.timestamp = Date();
+    }
+
+    func getMessage() -> String {
+        return self.message;
+    }
+
+    func getTimestamp() -> Date {
+        return self.timestamp;
+    }
+}
+
 struct ErrorEvent: Codable {
 
     let errorMessage:String;
@@ -183,6 +202,24 @@ struct HeadingCallbackEvent : Codable {
     }
 }
 
+struct SignifyLogCallbackEvent : Codable {
+    
+    var eventType: String
+    var event: SignifyLogEvent
+    
+    init (logEvent: SignifyLogEvent) {
+        self.event = logEvent;
+        self.eventType = "didReceiveLog";
+    }
+
+    var dictionaryRepresentation: [String: Any] {
+        return [
+            "eventType" : self.eventType,
+            "event" : self.event
+        ]
+    }
+}
+
 class SignifyEventNotifier {
 
     var command: CDVInvokedUrlCommand? = nil;
@@ -191,6 +228,27 @@ class SignifyEventNotifier {
     init(command: CDVInvokedUrlCommand, commandDelegate: CDVCommandDelegate) {
         self.command = command;
         self.commandDelegate = commandDelegate;
+    }
+    
+    func didReceiveLog(message: String) {
+
+        let callbackEvent = SignifyLogCallbackEvent(logEvent: SignifyLogEvent(message: message));
+
+        do {
+
+            let jsonData = try JSONEncoder().encode(callbackEvent);
+            let jsonString = String(data: jsonData, encoding: .utf8)!
+
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: jsonString);
+
+            pluginResult?.keepCallback = true
+
+            self.commandDelegate!.send(pluginResult, callbackId: self.command?.callbackId);
+
+        } catch {
+            os_log("%@", error.localizedDescription );
+        }
+
     }
 
     func didReceiveError(event: ErrorEvent) {
@@ -259,10 +317,8 @@ class SignifyEventNotifier {
 }
 
 @objc(CDVSignifyPositioningManager) class CDVSignifyPositioningManager : CDVPlugin, IPIndoorPositioningDelegate {
-    
-    private var indoorPositioning: IPIndoorPositioning? = nil;
 
-    var signifyEventNotifier: SignifyEventNotifier? = nil;
+    private var signifyEventNotifier: SignifyEventNotifier? = nil;
    
     override func pluginInitialize() {
     }
@@ -285,7 +341,7 @@ class SignifyEventNotifier {
         
         let license : String = (command.arguments[0] as? String)!;
         let testMode: Bool = (command.arguments[1] as? Bool ?? false);
-       
+
         IPIndoorPositioning.sharedInstance().delegate = self
         IPIndoorPositioning.sharedInstance().headingOrientation = .portrait
         IPIndoorPositioning.sharedInstance().configuration = license
@@ -301,6 +357,9 @@ class SignifyEventNotifier {
     @objc(start:) func start(command : CDVInvokedUrlCommand) {
         DispatchQueue.main.async {
             if (IPIndoorPositioning.sharedInstance().running == false) {
+                self.signifyEventNotifier?.didReceiveLog(message: "Starting indoor positioning");
+                let prefix: String = String(IPIndoorPositioning.sharedInstance().configuration?.prefix(25) ?? "");
+                self.signifyEventNotifier?.didReceiveLog(message: String("Venue: \(prefix)"));
                 IPIndoorPositioning.sharedInstance().start();
             }
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
@@ -311,6 +370,7 @@ class SignifyEventNotifier {
      @objc(stop:) func stop(command : CDVInvokedUrlCommand) {
          DispatchQueue.main.async {
             if (IPIndoorPositioning.sharedInstance().running == true) {
+                self.signifyEventNotifier?.didReceiveLog(message: "Stopping indoor positioning");
                 IPIndoorPositioning.sharedInstance().stop();
             }
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK);

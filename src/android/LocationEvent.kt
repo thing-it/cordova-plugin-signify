@@ -13,7 +13,7 @@ class LocationEvent(location: Map<String, Any>) {
     val horizontalAccuracy: Float
     val altitude: Double
     val verticalAccuracy: Float
-    val floor: Int
+    val floor: String
     val accuracyLevel: Int
     val expectedAccuracyLevel:String
 
@@ -23,8 +23,8 @@ class LocationEvent(location: Map<String, Any>) {
         this.horizontalAccuracy = location[IndoorPositioning.Listener.LOCATION_HORIZONTAL_ACCURACY] as Float
         this.altitude = location[IndoorPositioning.Listener.LOCATION_ALTITUDE] as Double
         this.verticalAccuracy = location[IndoorPositioning.Listener.LOCATION_VERTICAL_ACCURACY] as Float
-        this.floor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? Int ?: 0
-        this.accuracyLevel = location[IndoorPositioning.Listener.LOCATION_EXPECTED_ACCURACY_LEVEL] as? Int ?: 0
+        this.floor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? String ?: "Unknown"
+        this.accuracyLevel = location[IndoorPositioning.Listener.LOCATION_EXPECTED_ACCURACY_LEVEL] as? Int ?: 1
 
         this.expectedAccuracyLevel = ExpectedAccuracyLevel.fromInteger(this.accuracyLevel).toString();
     }
@@ -34,7 +34,7 @@ class LocationEvent(location: Map<String, Any>) {
 
         val json = JSONObject()
 
-       json.put("latitude", this.latitude)
+        json.put("latitude", this.latitude)
         json.put("longitude", this.longitude)
         json.put("horizontalAccuracy", this.horizontalAccuracy)
         json.put("altitude", this.altitude)

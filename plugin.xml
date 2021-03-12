@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="cordova-plugin-signify" version="0.0.3" xmlns="http://apache.org/cordova/ns/plugins/1.0"
+<plugin id="cordova-plugin-signify" version="0.0.4" xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Cordova Plugin Signify</name>
     <description>Signify</description>
@@ -39,6 +39,7 @@
         <lib-file src="Android-signifySDK-2.42.0/jars/indoorpositioning.aar" arch="device"/>
 
         <source-file src="src/android/PositioningManager.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
+        <source-file src="src/android/LogEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
         <source-file src="src/android/ErrorEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
         <source-file src="src/android/HeadingEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
         <source-file src="src/android/LocationEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>

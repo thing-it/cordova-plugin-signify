@@ -13,6 +13,10 @@
  */
 function Delegate (){};
 
+Delegate.didReceiveLog = function(pluginResult) {
+    pluginResult.event = JSON.parse(pluginResult.event);
+};
+
 Delegate.didReceiveError = function(pluginResult) {
     pluginResult.event = JSON.parse(pluginResult.event);
 };
