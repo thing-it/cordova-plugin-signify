@@ -1,6 +1,6 @@
 {
   "name": "@thing-it/cordova-plugin-signify",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Cordova Signify Plug-In",
   "cordova": {
     "id": "@thing-it/cordova-plugin-signify",

@@ -8,42 +8,50 @@ import com.philips.indoorpositioning.library.IndoorPositioning.Listener.Expected
 
 class LocationEvent(location: Map<String, Any>) {
 
-    val latitude: Double
-    val longitude: Double
-    val horizontalAccuracy: Float
-    val altitude: Double
-    val verticalAccuracy: Float
-    val floor: String
-    val accuracyLevel: Int
-    val expectedAccuracyLevel:String
+  val latitude: Double
+  val longitude: Double
+  val horizontalAccuracy: Float
+  val altitude: Double
+  val verticalAccuracy: Float
+  val rawFloor: Int
+  val floor: String
+  val accuracyLevel: Int
+  val expectedAccuracyLevel:String
 
-    init {
-        this.latitude = location[IndoorPositioning.Listener.LOCATION_LATITUDE] as Double
-        this.longitude = location[IndoorPositioning.Listener.LOCATION_LONGITUDE] as Double
-        this.horizontalAccuracy = location[IndoorPositioning.Listener.LOCATION_HORIZONTAL_ACCURACY] as Float
-        this.altitude = location[IndoorPositioning.Listener.LOCATION_ALTITUDE] as Double
-        this.verticalAccuracy = location[IndoorPositioning.Listener.LOCATION_VERTICAL_ACCURACY] as Float
-        this.floor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? String ?: "Unknown"
-        this.accuracyLevel = location[IndoorPositioning.Listener.LOCATION_EXPECTED_ACCURACY_LEVEL] as? Int ?: 1
+  init {
+    this.latitude = location[IndoorPositioning.Listener.LOCATION_LATITUDE] as Double
+    this.longitude = location[IndoorPositioning.Listener.LOCATION_LONGITUDE] as Double
+    this.horizontalAccuracy = location[IndoorPositioning.Listener.LOCATION_HORIZONTAL_ACCURACY] as Float
+    this.altitude = location[IndoorPositioning.Listener.LOCATION_ALTITUDE] as Double
+    this.verticalAccuracy = location[IndoorPositioning.Listener.LOCATION_VERTICAL_ACCURACY] as Float
+    this.rawFloor = location[IndoorPositioning.Listener.LOCATION_FLOOR_LEVEL] as? Int ?: 0
+    this.accuracyLevel = location[IndoorPositioning.Listener.LOCATION_EXPECTED_ACCURACY_LEVEL] as? Int ?: 1
 
-        this.expectedAccuracyLevel = ExpectedAccuracyLevel.fromInteger(this.accuracyLevel).toString();
+    if (this.rawFloor == 0) {
+      this.floor = "Unknown"
+    } else {
+      this.floor = this.rawFloor.toString()
     }
 
-    @Throws(JSONException::class)
-    fun toJson(): JSONObject {
+    this.expectedAccuracyLevel = ExpectedAccuracyLevel.fromInteger(this.accuracyLevel).toString()
+  }
 
-        val json = JSONObject()
+  @Throws(JSONException::class)
+  fun toJson(): JSONObject {
 
-        json.put("latitude", this.latitude)
-        json.put("longitude", this.longitude)
-        json.put("horizontalAccuracy", this.horizontalAccuracy)
-        json.put("altitude", this.altitude)
-        json.put("verticalAccuracy", this.verticalAccuracy)
-        json.put("floor", this.floor)
-        json.put("accuracyLevel", this.accuracyLevel)
-        json.put("expectedAccuracyLevel", this.expectedAccuracyLevel)
+    val json = JSONObject()
 
-        return json
-    }
+    json.put("latitude", this.latitude)
+    json.put("longitude", this.longitude)
+    json.put("horizontalAccuracy", this.horizontalAccuracy)
+    json.put("altitude", this.altitude)
+    json.put("verticalAccuracy", this.verticalAccuracy)
+    json.put("floor", this.floor)
+    json.put("rawFloor", this.rawFloor)
+    json.put("accuracyLevel", this.accuracyLevel)
+    json.put("expectedAccuracyLevel", this.expectedAccuracyLevel)
+
+    return json
+  }
 
 }
