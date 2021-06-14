@@ -83,28 +83,27 @@ struct LocationEvent: Codable {
     init (location: [AnyHashable : Any]) {
         
         let location = location.mapValues { $0 as? NSNumber }.compactMapValues { $0 };
-
         self.latitude = location[kIPLocationLatitude]?.doubleValue ?? 0;
         self.longitude = location[kIPLocationLongitude]?.doubleValue ?? 0;
         self.horizontalAccuracy = location[kIPLocationHorizontalAccuracy]?.doubleValue ?? 0;
         self.altitude = location[kIPLocationAltitude]?.doubleValue ?? 0;
         self.verticalAccuracy = location[kIPLocationVerticalAccuracy]?.doubleValue ?? 0;
-        self.floor = location[kIPLocationFloorLevel]?.stringValue ?? "Unknown";
+        self.floor = location[kIPLocationFloorLevel]?.stringValue ?? "UNKNOWN";
         self.accuracyLevel = location[kIPLocationExpectedAccuracyLevel]?.int32Value ?? 1;
         
         let indicator = IPIndoorPositioningExpectedAccuracyIndicator(rawValue: accuracyLevel);
 
         switch indicator {
             case .unknown:
-                self.expectedAccuracyLevel = "Unknown"
+                self.expectedAccuracyLevel = "UNKNOWN"
             case .low:
-                self.expectedAccuracyLevel = "Low"
+                self.expectedAccuracyLevel = "LOW"
             case .medium:
-                self.expectedAccuracyLevel = "Medium"
+                self.expectedAccuracyLevel = "MEDIUM"
             case .high:
-                self.expectedAccuracyLevel = "High"
+                self.expectedAccuracyLevel = "HIGH"
             default:
-                self.expectedAccuracyLevel = "Unknown"
+                self.expectedAccuracyLevel = "UNKNOWN"
         }
 
     }
