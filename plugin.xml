@@ -36,7 +36,7 @@
             </feature>
         </config-file>
 
-        <lib-file src="Android-signifySDK-2.47.0/jars/indoorpositioning.aar" arch="device"/>
+        <lib-file src="Android-signifySDK-2.48.0/jars/indoorpositioning.aar" arch="device"/>
 
         <source-file src="src/android/PositioningManager.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
         <source-file src="src/android/LogEvent.kt" target-dir="app/src/main/kotlin/com/thingit/integration/signify"/>
@@ -60,7 +60,7 @@
 
         <source-file src="src/ios/CDVSignifyPositioningManager.swift"/>
 
-        <framework src="iOS-signifySDK-2.47.0/IndoorPositioning.framework" custom="true" embed="true"/>
+        <framework src="iOS-signifySDK-2.48.0/IndoorPositioning.framework" custom="true" embed="true"/>
 
     </platform>
 
